@@ -1,7 +1,7 @@
 ---
 title: Self-Managed Enterprise Edition release notes
 sidebar_label: Self-Managed Enterprise Edition
-date: 2024-07-03T10:00
+date: 2024-07-31T10:00
 sidebar_position: 16
 ---
 
@@ -123,6 +123,91 @@ Upon providing your credentials and the release version, the script will proceed
 
 :::
 
+## July 31, 2024, version 0.19.0
+
+This release includes the following Harness module and component versions.
+
+| **Name** | **Version** |
+| :-- | :--: |
+| Helm Chart | [0.19.0](https://github.com/harness/helm-charts/releases/tag/harness-0.19.0) |
+| Air Gap Bundle | [0.19.0](https://console.cloud.google.com/storage/browser/smp-airgap-bundles/harness-0.19.0) |
+| NG Manager | 1.41.9 |
+| CI Manager | 1.30.2 |
+| Pipeline Service | 1.78.8 |
+| Platform Service | 1.26.3 |
+| Access Control Service | 1.48.3 |
+| Delegate | 24.06.83204 |
+| Change Data Capture | 1.18.0 |
+| STO Core | 1.97.2 |
+| Test Intelligence Service | 1.17.0 |
+| NG UI | 1.26.16 |
+| LE NG | 1.3.0 |
+
+#### Alternative air gap bundle download method
+
+Some admins might not have Google account access to download air gap bundles. As an alternative, you can use `gsutil`. For `gsutil` installation instructions, go to [Install gsutil](https://cloud.google.com/storage/docs/gsutil_install) in the Google Cloud documentation.
+
+```
+gsutil -m cp \
+
+  "gs://smp-airgap-bundles/harness-0.19.0/ccm_images.tgz" \
+  "gs://smp-airgap-bundles/harness-0.19.0/cdng_images.tgz" \
+  "gs://smp-airgap-bundles/harness-0.19.0/ce_images.tgz" \
+  "gs://smp-airgap-bundles/harness-0.19.0/ci_images.tgz" \
+  "gs://smp-airgap-bundles/harness-0.19.0/ff_images.tgz" \
+  "gs://smp-airgap-bundles/harness-0.19.0/platform_images.tgz" \
+  "gs://smp-airgap-bundles/harness-0.19.0/sto_images.tgz" \
+  .
+```
+
+### Breaking change
+
+### Early access
+
+### New features and enhancements
+
+#### Harness Platform
+
+- Reduced delegate liveness probe failure time. Previously, delegates had a 15-minute window to send heartbeats before the liveness probe failed, leading to a delegate restart. Harness reduced this time to 5 minutes to ensure quicker detection and response to heartbeat failures. (PL-52037)
+
+- `upgrader_enabled` is now set to `true` in the Terraform delegate download section of the UI gen installation file to enable automatic upgrades. (PL-51681)
+
+- The `terminationGracePeriodSeconds` for delegates has been increased from 10 minutes to one hour. This enhancement allows delegate pods to wait up to an hour before being forcibly terminated during regular scale-downs or upgrades, ensuring smoother transitions and minimizing potential disruptions. (PL-51534, ZD-63917)
+
+- Due to a bug, users could be added to SSO linked User Groups from the Harness UI, which should not be allowed. The addition of users to any SSO linked user groups from the Harness UI is now restricted. (PL-51431)
+
+- Modified the unique index for delegate token names. The default token name in each scope will now be `default_token` instead of `default_token_org/project`. This change applies only to new projects and organizations; existing projects and organizations will retain their current token names. (PL-51151)
+
+- Added support for Harness Secret Manager decryption for notifications. Harness-managed secrets used in notifications are now decrypted using Harness Manager, enhancing security and functionality. (PL-41880)
+
+### Fixed issues
+
+#### Harness Platform
+
+- Connectors could be deleted even if they had existing secrets. This issue has been resolved, and now AWS Secret Manager Connectors cannot be deleted if they contain existing secrets. (PL-52067, ZD-65772)
+
+- Resource Scope was deleting projects. Searching for a project and then selecting it would remove all previously selected projects. Improved the project selection process in org scope Resource Groups to match the flow of project selection in account scope Resource Groups. This change resolves the issue and ensures previously selected projects remain intact when new ones are added. (PL-51988, ZD-65620)
+
+- The CI module on the Subscriptions page didn't display the **Available credits** summary card and **Credits breakdown** table. You can now view the **Available credits** summary card and **Credits breakdown** table when `PL_ENABLE_LICENSE_USAGE_COMPUTE` is disabled. When the flag is enabled, the summary card and table are moved to the Cloud Credits page instead of Subscriptions page. (PL-51838, ZD-65108)
+
+- Public access on resources was not functioning correctly when a project had multiple public resource types. Only the first resource type marked as public was registered internally in Access Control. This issue has been resolved. Now, public access is correctly registered for all resource types marked as public within a project, ensuring that every public resource type works as expected. (PL-51797)
+
+- Pipelines were hanging when the pipeline-service was scaled up or down by HPA, causing some pipelines to become stuck, requiring manual abortion. Increased the graceful timeout from 30 seconds to 180 seconds to prevent pipelines from hanging during pipeline-service scaling. (PL-51780, ZD-63250)
+
+- The delegate cached its health status for the health endpoint for 5 minutes, leading to occasionally incorrect health reports. Reduced the cache interval to 10 seconds to align with the default K8S health check interval. (PL-51707)
+
+- Kubernetes services were created during the startup of the delegate, causing the IP pool to be exhausted for NAB. The delegate has been updated to prevent the creation of Kubernetes services upon startup, resolving the issue with IP pool exhaustion. (PL-51550)
+
+- Delegates were running out of memory due to frequent connectivity checks. Optimized the connectivity check process to reduce memory usage, preventing the delegate from running out of memory. (PL-51418, ZD-63705)
+
+- SSH type deployment errors were not providing clear information, and delegate tasks continued beyond the maximum broadcast rounds. The issue has been resolved by failing the delegate task after the maximum broadcast rounds are completed. A correct error message will now be displayed to improve clarity. (PL-51241)
+
+- New users accepting an invitation and landing on the Get Started page encountered a 404 error. New users will now be redirected to the correct page upon accepting an invitation. (PL-51173) 
+
+- Performing actions within embedded dashboards now refreshes the user's active session, preventing unexpected logouts. (PL-50534, ZD-62334)
+
+- The **Explore Plans** button failed to redirect to the Plans page. Resolved the button routing issue to ensure the **Explore Plans** button now correctly redirects to the Plans page. (PL-49190, ZD-62009)
+
 ## July 23, 2024, patch version 0.18.1
 
 This release includes the following Harness module and component versions.
@@ -208,7 +293,7 @@ gsutil -m cp \
   .
 ```
 
-#### Breaking change
+### Breaking change
 
 - Harness has now disabled the ability to update notes for an execution after it is complete. This functionality is behind the feature flag `PIE_DISABLE_NOTES_UPDATE_AFTER_EXECUTION_COMPLETED`. Contact [Harness Support](mailto:support@harness.io) to enable it. (PIPE-18490)
 
