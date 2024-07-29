@@ -160,11 +160,50 @@ gsutil -m cp \
   .
 ```
 
+### Behavior changes
+
+#### Continuous Delivery
+
+- Previously, when the verify step failed, and an action was taken based on the failure strategy or manual intervention, the title was always shown as **Manual Intervention**. (CDS-97985, ZD-65113)
+
+   Now, the title is updated to reflect the nature of the intervention:
+   - **Intervention** is displayed when the action is performed through the CV failure strategy configuration.
+
+   - **Manual Intervention** is displayed when the action is performed through manual intervention.
+
+- In order to support auto-creation of GitX entities, `.harness` folder will be tracked by default for all webhooks. (PIPE-19965)
+
+- Bi-directional sync Gitx Setting from account settings. From now onwards, it would be enabled for all users by default. Currently, this change is behind the FF `PIE_DISABLE_GITX_BI_DIRECTIONAL_SYNC`. Contact [Harness support](mailto:support@harness.io) to enable it.(PIPE-19419)
+
 ### Breaking change
+
+#### Continuous Delivery
+
+- Validations have been added to override variable names. Now, a new variable name cannot be saved if it starts or ends with a space. Also, validations have been added for special characters. This is a breaking change for the already saved invalid variable names. Hence, this change is enabled behind the feature flag, `CDS_OVERRIDES_VARIABLE_NAME_VALIDATIONS`. After enabling the feature flag, you can see that the variable names are being validated when creating or updating overrides. (CDS-97386, ZD-62711)
+
+- Harness now supports the serial deployment of environment groups. This feature is currently behind the feature flag, `ENV_GROUP_DEPLOYMENTS_IN_SERIAL`. Contact [Harness support](mailto:support@harness.io) to enable it. (CDS-97241, ZD-63912)
 
 ### Early access
 
+#### Continuous Integration
+
+- When you include a step that uses a private Docker registry, the step now uses the URI specified in the Docker connector. This means that you no longer need to specify the Fully Qualified Name in the Image field. This change applies to the following steps: Plugin, Background, Run, Run Tests, and Test Intelligence. (CI-10500, ZD-64406, ZD-64735, ZD-65011, ZD-66227)
+
 ### New features and enhancements
+
+#### Continuous Integration
+
+- Added support for AWS connectors to assume external roles to STS (Security Token Service) credentials for cache plugins.
+
+#### Continuous Delivery
+
+- **Infinite Scroll Support Repo listing**
+
+This feature is currently behind the feature flag, `CDS_LIST_REPO_V2`. Please contact [Harness support](mailto:support@harness.io) to enable it.
+
+For a certain connector, you can now search for repositories with support for infinite scroll. Simply enter any keyword to see related repositories listed. If you can't find the repository you're looking for, you can also add it manually.(PIPE-10894)
+
+Refer to following doc for more details on new [repo listing](/docs/platform/git-experience/git-experience-overview/#repo-listing).
 
 #### Harness Platform
 
@@ -180,7 +219,130 @@ gsutil -m cp \
 
 - Added support for Harness Secret Manager decryption for notifications. Harness-managed secrets used in notifications are now decrypted using Harness Manager, enhancing security and functionality. (PL-41880)
 
+#### Security Testing Orchestration
+
+- [WIZ IaC step](https://developer.harness.io/docs/security-testing-orchestration/sto-techref-category/wiz/iac-scans-with-wiz/) is now available in Infrastructure stage.
+
+- [Git Clone step](https://developer.harness.io/docs/continuous-delivery/x-platform-cd-features/cd-steps/containerized-steps/git-clone-step/) is now available in Security stage.
+
 ### Fixed issues
+
+#### Chaos Engineering
+
+- Added NIL check for probes in CDC, updated chaosGameDays collection name and `gameday_run_id` field. (CHAOS-5737)
+
+- CPU utilization increased due to continuously executing clean up tasks. This issue has been fixed by adding a sleep operation that runs after every remove operation and optimizes overall CPU performance. (CHAOS-5709)
+
+#### Continuous Integration
+
+- Fixed an issue where pipelines with Docker Layer Caching enabled would fail with the error Failed to get link with status 400. (CI-13070)
+
+- Running unittest in a Run step resulted in the error sh: unittest not found in some cases. With this fix, pipelines now run python unittest -m which supports more image types. (CI-12795)
+
+- Fixed an issue where pipelines failed intermittently due to delegate selection and task distribution problems when multiple delegates are configured with the same selector tag. (CI-12788, ZD-64246)
+
+- Added a fix to support merge events for Bitbucket Server PR builds with refs as `refs/heads/targetBranch`. (CI-12710, ZD-57511, ZD-65148)
+
+- Fixed an issue where certain keywords in a script could cause the step to fail with an "Invalid step" error. (CI-12708, ZD-63932)
+
+- Improved the error message that gets displayed when an incompatible Docker version causes the pipeline to fail. (CI-12612, ZD-63466)
+
+- Implemented a fix to ensure that all account-level secret references use the correct format (<+secrets.getValue("account.MY_SECRET_ID")>) in all build infrastructures. With this fix, pipelines will fail if account-level secrets are not referenced correctly. (CI-12595, ZD-63260)
+
+- Fixed an issue where the Docker LABEL set in a Build and Push step does not override the LABEL configured in the Dockerfile. With this fix, you can now use buildx rather than kaniko to build your container images. You must run buildx on k8s with Privileged mode enabled. This fix is behind the feature flag CI_USE_BUILDX_ON_K8. Contact Harness Support to enable this fix. (CI-12548, ZD-63222)
+
+- Honor `ImagePullPolicy` specified in the YAML for Docker Runner. In some cases, the **Image Pull Policy** setting did not work as intended when running builds in Docker and VM build infrastructures. (CI-11703)
+
+- CI builds were running slowly in some cases. This release includes the following fixes to address this issue. (CI-10042, ZD-52559)
+  1. Added extra resources for running `addon`. This feature is behind the feature flag `FEATURE_FLAG`. Contact [Harness Support](mailto:support@harness.io "mailto:support@harness.io") to enable the feature.
+  2. Updated LE to `addon` communication to retry every 300ms 30 times, for a total of 9 seconds.
+  3. Disabled resource consumption logs for `addon`.
+
+#### Continuous Delivery
+
+- Extra border was appearing on the settings page during extensive scrolling. The issue is fixed now. (CDS-98494, ZD-65368)
+
+- While clicking on the **View References** button while deleting a Secret was not properly redirecting the user. The issue is fixed now. (CDS-98487)
+
+- Discrepancy was observed in text box size between HTTP step and HTTP step template. The issue is fixed now by adding conditional width for pipeline input form and template. (CDS-98094, ZD-65420)
+
+- When updating the **File Usage** in File Store, an error was being thrown that the file usage could not be updated, even though it was being updated properly. The issue is fixed now. (CDS-98077, ZD-65347,65353)
+
+- Even though clusters were selected and listed under a specific environment, the Gitops Sync task was getting an error **Following clusters were skipped either because clusters were not linked to the environment or not present in Harness GitOps**. The issue is fixed now. (CDS-98022)
+
+- Azure App deployments were not working as expected due to recent log changes by Azure. Azure now provides logs for multiple containers, which affected the integration. The issue is fixed now and includes log pattern recognition that mark the pipeline success based on matching specific patterns in the logs. (CDS-98000, ZD-65289)
+
+- The license trends graph for the SI model was previously inaccurate due to the queries grouping services based on projects. As per the correct definition, all services should be grouped in a single bucket irrespective of the organization or project. The issue is fixed now and the queries have been updated to accurately reflect the current license count on the license trend graph for the SI model. (CDS-97966)
+
+- Git Experience for Overrides was not working. Previously, the UI tried to always fetch the overrides from the default branch failing the get call from the UI. The issue is fixed now. (CDS-97874)
+
+- In Custom template, service and Infrastructure is optional and if Infrastructure is fixed and from UI side and if there is no value present it was getting set to undefined that was leading to the removal of  **infrastructureDefinitions** key and if there is no key it will throw an error. The issue is fixed now. (CDS-97815,ZD-64148,64652)
+
+- Changes to add `metricThresholds` to NewRelic health monitors are causing Terraform to hang while waiting for an updated response. Despite the hang during the first execution, subsequent executions of the pipeline indicate that the resource was successfully updated. The issue is fixed now by changing the error code. (CDS-97793, ZD-65015)
+
+- When a template YAML contained duplicate keys and was linked to a pipeline, the error message only indicated the presence of duplicate keys without identifying the specific template. The error message has been improved to include the template identifier, enabling users to locate and fix the issue in the relevant template. (CDS-97785, ZD-64989)
+
+- While selecting the Deployment type **AWS SAM** and toggling the CV button it was throwing an error due to no template being chosen. The issue is fixed now. (CDS-97771)
+
+- For Winrm deployment with Command step and auth type as Kerberos if the environment variables contains characters `\b, \v, \c, \f, &` the script execution was failing as we parse the response of script execution to xml string and above characters are illegal xml characters. The issue is fixed and now and these characters will be escaped. This change is behind the FF `CDS_ESCAPE_ENV_VARS_FOR_WINRM_KERBEROS_NG`. (CDS-97690, ZD-55276,58201,66326)
+
+- When using a connector at a project scope, the preflight check fails when the connector reference links to the connector url stored or created at an account level due to an incorrect routing to a `Not Found` page. This was because, scope details were missing from the API. The issue is now fixed.  (CDS-97593, ZD-64673)
+
+- The project level artifact feed was not working for azure web services deployment and the project information was fetched from the wrong object. This issue is now fixed and the project level feed for artifact collection now works as expected. (CDS-97586)
+
+- Logs were not being uploaded for shell script step and some other steps in case the step timed out. The issue is fixed and the shell script step now uploads the logs on step timeout. (CDS-97521, ZD-64422)
+
+- The shell script step was not doing a capability check before assigning the tasks to the delegate. The issue is fixed and the shell script step will now have a host capability check. (CDS-97512, ZD-66326,66349)
+
+- Null Pointer Exception occurred in the Verify step. Added null point checks to avoid this error in the future.  (CDS-97388)
+
+- The ServiceNow step was not updating the ticket but was showing successful with no logs being shown. The issue is now fixed and console logs and debugging help has been added in the ServiceNow steps. (CDS-97033, ZD-63637)
+
+- When selecting **Use Template** on an Approval Stage, Steps were showing, but Step Group Templates were not. The issue is now fixed, and users will be able to create a step group template with the approval stage type. These templates can be used in approval stages as step entities. (CDS-96930, ZD-63556)
+
+- If drift is detected in the services dashboard tile, the **Drift Detected** hover box now displays a detailed error message with the relevant documentation link. (CDS-96911, CDS-96722)
+
+- Pipeline execution showed inconsistencies. This issue is fixed by fixing a retry bug with the delegate's Git client where it did not retry on specific errors. (CDS-96877, ZD-63321)
+
+- Service failed intermittently when fetching the `ECR_ARTIFACT_TASK_NG` artifact. This issue is fixed by optimizing ECR calls by reducing the number of client creation calls and reusing the clients by passing them and eventually using them to make calls instead of creating clients every time. (CDS-96861, ZD-63061)
+
+- The Execution History page broke when numbers were used in the Tags field. This issue is fixed by converting the string holding the number to string type before applying string methods on the variable. (CDS-96636)
+
+- The trigger was getting invoked without an artifact push. The issue is fixed now. (PIPE-19806)
+
+- Changes made to files in Git repository were not reflected in Harness. The issue is fixed now and it is ensured webhooks events are now correctly triggered, enabling accurate bididrectional synchronization. (PIPE-19654, ZD-64687)
+
+- When trying to resolve the expressions in the File Store scripts, Harness encountered a self referencing expression. Due to this condition, the resources associated with two Harness services were exhausted. A code change fixed this issue by preventing such pipeline executions. This item requires Harness Delegate version 24.06.83304. For information about features that require a specific delegate version, go to the [Delegate release notes](/release-notes/delegate). (PIPE-19585, ZD-64579, ZD-64580)
+
+- Validation for the pipelines with templates imported from Git failed. Typically, schema validation is done in the pipeline Get, Create, or Update calls. However, schema validation for pipelines imported from Git (with templates) is done without resolving the templates because it's an expensive operation. Therefore, schema validation in the async validate call to identify any schema errors causing validation failure. Note that the issue only happens with imported pipelines with templates from Git currently. (PIPE-18537, ZD-61841)
+
+- The GitEx Health page is now updated to include information about GitEx webhook events validation such as event status and status of other related entities. (PIPE-18466)
+
+- When a Template was selected and added to a Pipeline, the UI options was not allowing the user to select **Always use Stable Template**, although this was possible through the YAML by removing the template version. This issue has now been fixed and the Template can be set to **Stable version** in the calling Pipeline. (PIPE-16496, ZD-60750)
+
+- Fixed an issue where hovering on variables did not work as expected. (PIPE-14668)
+
+- Infrastructure definition page was not opening from the pipeline execution page. The issue is fixed now. (CDS-98502)
+
+- No error appeared in the secrets runtime usage tab when clicking on a pipeline name belonging to a deleted project. The issue is fixed now. (CDS-97986)
+
+- Cloud Provider field was empty when configuring or updating the Infrastructure Definition. The issue is fixed now and all available cloud providers are now listed for selection. (CDS-97835, ZD-64983)
+
+- Secrets containing hyphens were not getting masked in step inputs when used in scripts. This issue has been resolved by updating the regex to properly mask secrets with hyphens. (CDS-97713)
+
+- `getPreflightCheckResponse` api was not sending the scope details while sending the `connectorIdentifier`. The issue is fixed now. (CDS-97673)
+
+- In the Jira Create step, the `Add Jira Fields` modal was extending beyond the screen if the content was large. This issue has been resolved by setting the max-height property of the modal to 400px and applying overflow: scroll along the y-axis. (CDS-97334)
+
+- During the Jira Create step, when the connector, project, and issue type fields were all selected, an API call was made to fetch Jira fields without displaying a loader, causing a blank screen until the fields were rendered. A loader has now been added to indicate progress while the API call is in progress. (CDS-97333)
+
+- When a connector was deleted, the connected manifests in overrides failed to load. The issue is fixed now. (CDS-94620)
+
+- Previously, a template resolution failure resulted in a blank page with no input data. The issue is fixed now, and now the user will see the execution input YAML in the event of such failures. (PIPE-18661, ZD-62224)
+
+- During delegate selection in pipelines where the stage delegate was selected instead of the outer step group delegate when a pipeline was executed. The issue is fixed now and delegate selection has been corrected to follow the priority order: `Connector < Pipeline < Stage < Step Group < Nested Step Group`. (PIPE-16608)
+
+- The pipeline list displayed an incorrect time when hovering over the last execution time for a specific pipeline. The issue is fixed now. (PIPE-16533)
 
 #### Harness Platform
 
