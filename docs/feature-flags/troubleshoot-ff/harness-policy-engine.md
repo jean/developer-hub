@@ -14,7 +14,7 @@ redirect_from:
   - /docs/feature-flags/harness-policy-engine
 ---
 
-Harness Policy Engine uses [Open Policy Agency (OPA)](https://www.openpolicyagent.org/docs/latest/) to store policies that you can then enforce on your Feature Flags. You can use Harness Policy Engine with the following [Harness entities](../../platform/references/harness-entity-reference.md)on the Harness Platform:
+Harness Policy Engine uses [Open Policy Agent (OPA)](https://www.openpolicyagent.org/docs/latest/) to store policies that you can then enforce on your Feature Flags. You can use Harness Policy Engine with the following [Harness entities](../../platform/references/harness-entity-reference.md) on the Harness Platform:
 
 * Flag
 * Target
@@ -32,7 +32,7 @@ For example, you can use policies to ensure your Feature Flags: 
 This topic provides an overview of how Harness Policy Engine works with Feature Flags.
 
 :::info note
- For steps to set up your policies on the Harness Platform, go to [Use Harness Policy Engine for Feature Flags.](/docs/platform/governance/policy-as-code/using-harness-policy-engine-for-feature-flags)
+ For steps to set up your policies on the Harness Platform, go to [Use Harness Policy Engine for Feature Flags](/docs/platform/governance/policy-as-code/using-harness-policy-engine-for-feature-flags).
 :::
 
 ## Before you begin
@@ -40,7 +40,7 @@ This topic provides an overview of how Harness Policy Engine works with Feature 
 Before using Harness Policy Engine, you should understand the following:
 
 * [Harness' Key Concepts](/docs/platform/get-started/key-concepts.md)
-* [How to Write](https://www.openpolicyagent.org/docs/latest/policy-language/) [Rego for OPA](https://www.openpolicyagent.org/docs/latest/policy-language/)
+* [How to Write Rego for OPA](https://www.openpolicyagent.org/docs/latest/policy-language/)
 
 New to Rego? Use the following resources to learn it:
 
